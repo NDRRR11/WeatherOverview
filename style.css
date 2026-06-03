@@ -1,0 +1,13 @@
+
+body{margin:0;background:#111;color:#fff;font-family:Arial,sans-serif}
+header{display:flex;justify-content:space-between;padding:10px;background:#1b1b1b}
+#tabs{display:flex;gap:6px;padding:8px;background:#222;flex-wrap:wrap}
+button{padding:8px}
+#content{height:calc(100vh - 100px)}
+.grid{display:grid;grid-template-columns:60% 40%;height:100%}
+.left iframe{width:100%;height:100%}
+.right{display:grid;grid-template-rows:1fr 1fr 1fr}
+.right iframe,.panel{width:100%;height:100%;border:none}
+iframe{border:none}
+.full iframe{width:100%;height:100%}
+.panel{padding:12px}
