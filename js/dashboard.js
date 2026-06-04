@@ -1,7 +1,7 @@
 console.log("dashboard.js loaded");
 
 import { MAPS } from '../config/maps.js';
-import { alertsHtml, loadAlerts } from './alerts.js';
+import { loadAlerts } from './alerts.js';
 
 import { loadConditions, loadForecast } from './weather.js';
 import { loadAirQuality } from './airquality.js';
@@ -127,8 +127,7 @@ const rotationPages = [
   "local",
   "national",
   "air",
-  "river",
-  "alerts"
+  "river"
 ];
 
 function startRotationEngine() {
@@ -203,12 +202,6 @@ function page(name) {
   /* SETTINGS */
   if (name === 'settings') {
     renderSettings();
-    return;
-  }
-
-  /* ALERTS PAGE */
-  if (name === 'alerts') {
-    c.innerHTML = alertsHtml();
     return;
   }
 
