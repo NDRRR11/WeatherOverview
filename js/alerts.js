@@ -3,44 +3,43 @@ export function alertsHtml(){
 return '<div class="panel"><h2>ND Alerts</h2><p>Future NWS feed integration.</p></div>';
 }
 export async function loadAlerts() {
+  const el = document.getElementById("alerts");
+  if (!el) return;
+
   try {
     const res = await fetch(
       "https://api.weather.gov/alerts/active?area=ND"
     );
+
     const data = await res.json();
 
-    const alerts = data.features || [];
+    const features = data.features || [];
 
-    const warnings = alerts.filter(a =>
-      a.properties.severity === "Severe" ||
-      a.properties.severity === "Extreme"
-    );
+    if (!features.length) {
+      el.innerHTML = `
+        <h3>North Dakota Alerts</h3>
+        <div>No active statewide alerts</div>
+      `;
+      return;
+    }
 
-    const watches = alerts.filter(a =>
-      a.properties.event.includes("Watch")
-    );
+    el.innerHTML = `
+      <h3>North Dakota Alerts</h3>
+      <div>Warnings: ${features.filter(f => f.properties.event.includes("Warning")).length}</div>
+      <div>Watches: ${features.filter(f => f.properties.event.includes("Watch")).length}</div>
+      <div>Advisories: ${features.filter(f => f.properties.event.includes("Advisory")).length}</div>
 
-    const advisories = alerts.filter(a =>
-      a.properties.event.includes("Advisory")
-    );
-
-    document.getElementById("alerts").innerHTML = `
-      <h3>North Dakota Alerts (Statewide)</h3>
-
-      <div>
-        Warnings: ${warnings.length} •
-        Watches: ${watches.length} •
-        Advisories: ${advisories.length}
-      </div>
-
-      <ul>
-        ${alerts.slice(0, 4).map(a => `
-          <li>${a.properties.event}</li>
+      <div style="margin-top:8px">
+        ${features.slice(0, 5).map(f => `
+          <div>• ${f.properties.event}</div>
         `).join("")}
-      </ul>
+      </div>
     `;
+
   } catch (e) {
-    document.getElementById("alerts").innerHTML =
-      "<h3>North Dakota Alerts</h3><div>Unavailable</div>";
+    el.innerHTML = `
+      <h3>North Dakota Alerts</h3>
+      <div>Alerts unavailable</div>
+    `;
   }
 }
