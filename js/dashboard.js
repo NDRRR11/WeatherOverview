@@ -21,6 +21,7 @@ function formatTime() {
 function page(name) {
 
   /* OVERVIEW */
+  console.log("overview rendering");
   if (name === 'overview') {
     c.innerHTML = `
       <div class="overview">
