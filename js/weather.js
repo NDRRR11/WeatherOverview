@@ -1,4 +1,4 @@
-const KBIS = "BIS"; // Bismarck Airport station ID
+const KBIS = "KBIS"; // Bismarck Airport station ID
 
 async function getJSON(url) {
   const res = await fetch(url);
