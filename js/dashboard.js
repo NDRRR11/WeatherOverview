@@ -113,6 +113,4 @@ if (name === 'overview') {
   loadAirQuality();
   loadAlerts();
   loadTicker();
-
-  return;
 }
