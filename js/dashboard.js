@@ -1,11 +1,10 @@
 console.log("dashboard.js loaded");
 
 import { MAPS } from '../config/maps.js';
-import { alertsHtml } from './alerts.js';
+import { alertsHtml, loadAlerts } from './alerts.js';
 
 import { loadConditions, loadForecast } from './weather.js';
 import { loadAirQuality } from './airquality.js';
-import { loadAlerts } from './alerts.js';
 import { loadTicker } from './ticker.js';
 
 /* ---------------------------
@@ -78,12 +77,46 @@ function renderSettings() {
     </div>
   `;
 
-  // hydrate values safely
   const rotateToggle = document.getElementById("rotateToggle");
   const intervalSelect = document.getElementById("rotationInterval");
 
   if (rotateToggle) rotateToggle.checked = settings.rotate;
   if (intervalSelect) intervalSelect.value = settings.interval;
+}
+
+/* ---------------------------
+   LIVE DASHBOARD ENGINE
+----------------------------*/
+let refreshTimer = null;
+let clockTimer = null;
+
+function refreshAll() {
+  loadConditions();
+  loadForecast();
+  loadAirQuality();
+  loadAlerts();
+  loadTicker();
+}
+
+function startDashboardEngine() {
+
+  // prevent duplicate intervals
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (clockTimer) clearInterval(clockTimer);
+
+  // CLOCK (1 sec)
+  clockTimer = setInterval(() => {
+    const el = document.getElementById("clock");
+    if (el) el.textContent = formatTime();
+  }, 1000);
+
+  // DATA (60 sec)
+  refreshTimer = setInterval(() => {
+    refreshAll();
+  }, 60000);
+
+  // initial load
+  refreshAll();
 }
 
 /* ---------------------------
@@ -93,63 +126,36 @@ function page(name) {
   console.log("page:", name);
 
   /* OVERVIEW */
-if (name === 'overview') {
+  if (name === 'overview') {
 
-  c.innerHTML = `
-    <div class="overview">
+    c.innerHTML = `
+      <div class="overview">
 
-      <!-- LEFT: RADAR -->
-      <div class="leftRadar">
-        <iframe src="${MAPS.local}"></iframe>
-      </div>
-
-      <!-- RIGHT: OPS PANEL -->
-      <div class="rightPanel">
-
-        <!-- CLOCK -->
-        <div class="clock" id="clock">
-          ${formatTime()}
+        <div class="leftRadar">
+          <iframe src="${MAPS.local}"></iframe>
         </div>
 
-        <!-- CURRENT CONDITIONS -->
-        <div class="card" id="conditions">
-          <h3>Current Conditions (KBIS)</h3>
-          Loading live data...
-        </div>
+        <div class="rightPanel">
 
-        <!-- FORECAST -->
-        <div class="card" id="forecast">
-          <h3>Forecast</h3>
-          Loading live data...
-        </div>
+          <div class="clock" id="clock">
+            ${formatTime()}
+          </div>
 
-        <!-- AIR QUALITY -->
-        <div class="card" id="air">
-          <h3>Air Quality</h3>
-          Loading live data...
-        </div>
+          <div class="card" id="conditions">Loading...</div>
+          <div class="card" id="forecast">Loading...</div>
+          <div class="card" id="air">Loading...</div>
+          <div class="card" id="alerts">Loading...</div>
+          <div class="card" id="ticker">Loading...</div>
 
-        <!-- STATEWIDE ALERTS -->
-        <div class="card" id="alerts">
-          <h3>North Dakota Alerts</h3>
-          Loading live data...
-        </div>
-
-        <!-- NATIONAL TICKER -->
-        <div class="card" id="ticker">
-          <h3>National Weather Highlights</h3>
-          Loading live data...
         </div>
 
       </div>
-    </div>
-  `;
+    `;
 
-  // 🧠 START FULL LIVE ENGINE (single source of truth)
-  startDashboardEngine();
+    startDashboardEngine();
+    return;
+  }
 
-  return;
-}
   /* SETTINGS */
   if (name === 'settings') {
     renderSettings();
@@ -180,58 +186,11 @@ document.querySelectorAll('[data-page]').forEach(btn => {
 });
 
 /* ---------------------------
-   CLOCK UPDATE
-----------------------------*/
-/* ---------------------------
-   GLOBAL DEBUG ACCESS
-   (fixes "page is not defined")
+   GLOBAL ACCESS FIX
 ----------------------------*/
 window.page = page;
 
 /* ---------------------------
    INITIAL LOAD
 ----------------------------*/
-/* ---------------------------
-   LIVE DASHBOARD ENGINE
-----------------------------*/
-
-let refreshTimer = null;
-let clockTimer = null;
-
-function refreshAll() {
-  loadConditions();
-  loadForecast();
-  loadAirQuality();
-  loadAlerts();
-  loadTicker();
-}
-
-function startDashboardEngine() {
-
-  // avoid duplicate loops
-  if (refreshTimer) clearInterval(refreshTimer);
-  if (clockTimer) clearInterval(clockTimer);
-
-  // CLOCK (1 second heartbeat)
-  clockTimer = setInterval(() => {
-    const el = document.getElementById('clock');
-    if (el) el.textContent = formatTime();
-  }, 1000);
-
-  // DATA (60 second heartbeat)
-  refreshTimer = setInterval(() => {
-    refreshAll();
-  }, 60000);
-
-  // initial load immediately
-  refreshAll();
-}
-   
-   page('overview');
-
-setInterval(() => {
-  const el = document.getElementById("alerts");
-  if (el) {
-    loadAlerts();
-  }
-}, 60000);
+page('overview');
