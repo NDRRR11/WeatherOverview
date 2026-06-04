@@ -1,4 +1,3 @@
-
 export function alertsHtml(){
   return `
     <div class="panel" id="alerts">
@@ -7,7 +6,8 @@ export function alertsHtml(){
     </div>
   `;
 }
-eexport async function loadAlerts() {
+
+export async function loadAlerts() {
   const el = document.getElementById("alerts");
   if (!el) return;
 
