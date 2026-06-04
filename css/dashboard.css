@@ -1,90 +1,171 @@
-body {
+/* =========================
+   BASE / CANVAS SETUP
+========================= */
+
+html, body {
   margin: 0;
-  background: #111;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
   color: #fff;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
+
+/* Fixed 720p working canvas */
+#content {
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: #111;
+}
+
+/* Center canvas for encoder feed */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* =========================
+   HEADER / NAV
+========================= */
 
 header {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 8px 10px;
   background: #1b1b1b;
+  font-size: 14px;
 }
 
 #tabs {
   display: flex;
   gap: 6px;
-  padding: 8px;
+  padding: 6px 8px;
   background: #222;
   flex-wrap: wrap;
 }
 
 button {
-  padding: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #2a2a2a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
 }
 
-#content {
-  height: calc(100vh - 95px);
+/* =========================
+   OVERVIEW LAYOUT (EOC STYLE)
+========================= */
+
+.overview {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  height: 100%;
   width: 100%;
 }
 
-/* 🔥 NEW OVERVIEW LAYOUT */
-.overview {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  height: 100%;
-}
+/* =========================
+   LEFT RADAR PANEL
+========================= */
 
-/* LEFT SIDE RADAR */
 .leftRadar iframe {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
 }
 
-/* RIGHT SIDE PANEL STACK */
+/* =========================
+   RIGHT OPS PANEL
+========================= */
+
 .rightPanel {
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 10px;
+  padding: 8px;
+  gap: 8px;
   overflow: hidden;
 }
 
-/* CLOCK */
-.clock {
-  font-size: 28px;
-  font-weight: bold;
-  line-height: 1.3;
-}
+/* =========================
+   CLOCK (OPERATIONAL FOCUS)
+========================= */
 
-/* SECTION BLOCKS */
-.card {
-  background: #1c1c1c;
-  padding: 10px;
+.clock {
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1.2;
+  padding: 6px 8px;
+  background: #1a1a1a;
   border-radius: 6px;
 }
 
+/* =========================
+   DATA CARDS
+========================= */
+
+.card {
+  background: #1c1c1c;
+  padding: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 .card h3 {
-  margin: 0 0 6px 0;
-  font-size: 14px;
+  margin: 0 0 4px 0;
+  font-size: 13px;
   color: #aaa;
 }
 
-/* AIR QUALITY STATES */
-.aqi-good { color: #4caf50; }
-.aqi-moderate { color: #ffb300; }
-.aqi-unhealthy { color: #ff5252; }
+/* =========================
+   AIR QUALITY STATES
+========================= */
 
-/* FULL PAGE IFRAME VIEWS */
+.aqi-good {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.aqi-moderate {
+  color: #ffb300;
+  font-weight: bold;
+}
+
+.aqi-unhealthy {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+/* =========================
+   FULL SCREEN MAP VIEW
+========================= */
+
 .full {
-  height: 100%;
   width: 100%;
+  height: 100%;
 }
 
 .full iframe {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
+}
+
+/* =========================
+   SMALL SCREEN SAFETY
+========================= */
+
+@media (max-height: 720px) {
+  .clock {
+    font-size: 18px;
+  }
+
+  .card {
+    padding: 6px;
+  }
 }
