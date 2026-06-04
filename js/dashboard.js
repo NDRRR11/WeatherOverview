@@ -119,6 +119,47 @@ function startDashboardEngine() {
   refreshAll();
 }
 
+let rotationTimer = null;
+let rotationIndex = 0;
+
+const rotationPages = [
+  "overview",
+  "local",
+  "national",
+  "air",
+  "river",
+  "alerts"
+];
+
+function startRotationEngine() {
+
+  // prevent duplicates
+  if (rotationTimer) clearInterval(rotationTimer);
+
+  // check if enabled
+  const enabled = localStorage.getItem("rotate") !== "false";
+  if (!enabled) return;
+
+  const interval =
+    (parseInt(localStorage.getItem("interval")) || 60) * 1000;
+
+  rotationTimer = setInterval(() => {
+
+    rotationIndex++;
+
+    if (rotationIndex >= rotationPages.length) {
+      rotationIndex = 0;
+    }
+
+    const pageName = rotationPages[rotationIndex];
+
+    if (typeof window.page === "function") {
+      window.page(pageName);
+    }
+
+  }, interval);
+}
+
 /* ---------------------------
    PAGE ROUTER
 ----------------------------*/
@@ -194,3 +235,4 @@ window.page = page;
    INITIAL LOAD
 ----------------------------*/
 page('overview');
+startRotationEngine();
