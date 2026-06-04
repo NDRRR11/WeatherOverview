@@ -98,3 +98,7 @@ setInterval(() => {
 }, 1000);
 
 page('overview');
+import { loadConditions, loadForecast } from './weather.js';
+import { loadAirQuality } from './airquality.js';
+import { loadAlerts } from './alerts.js';
+import { loadTicker } from './ticker.js';
