@@ -1,6 +1,11 @@
 console.log("dashboard.js loaded");
+
 import { MAPS } from '../config/maps.js';
 import { alertsHtml } from './alerts.js';
+import { loadConditions, loadForecast } from './weather.js';
+import { loadAirQuality } from './airquality.js';
+import { loadAlerts } from './alerts.js';
+import { loadTicker } from './ticker.js';
 
 const c = document.getElementById('content');
 
@@ -16,56 +21,44 @@ function formatTime() {
 }
 
 /* ---------------------------
-   MAIN PAGE ROUTER
+   MAIN ROUTER
 ----------------------------*/
 function page(name) {
 
+  console.log("page:", name);
+
   /* OVERVIEW */
-  console.log("overview rendering");
   if (name === 'overview') {
+
     c.innerHTML = `
       <div class="overview">
 
-        <!-- LEFT RADAR -->
         <div class="leftRadar">
           <iframe src="${MAPS.local}"></iframe>
         </div>
 
-        <!-- RIGHT PANEL -->
         <div class="rightPanel">
 
           <div class="clock" id="clock">
             ${formatTime()}
           </div>
 
-          <div class="card" id="conditions">
-            <h3>Current Conditions (KBIS)</h3>
-            Loading...
-          </div>
-
-          <div class="card" id="forecast">
-            <h3>Forecast</h3>
-            Loading...
-          </div>
-
-          <div class="card" id="air">
-            <h3>Air Quality</h3>
-            Loading...
-          </div>
-
-          <div class="card" id="alerts">
-            <h3>North Dakota Alerts</h3>
-            Loading...
-          </div>
-
-          <div class="card" id="ticker">
-            <h3>National Weather Highlights</h3>
-            Loading...
-          </div>
+          <div class="card" id="conditions">Loading...</div>
+          <div class="card" id="forecast">Loading...</div>
+          <div class="card" id="air">Loading...</div>
+          <div class="card" id="alerts">Loading...</div>
+          <div class="card" id="ticker">Loading...</div>
 
         </div>
       </div>
     `;
+
+    // 🔥 NOW WE ACTUALLY ACTIVATE THE DATA LAYER
+    loadConditions();
+    loadForecast();
+    loadAirQuality();
+    loadAlerts();
+    loadTicker();
 
     return;
   }
@@ -76,7 +69,7 @@ function page(name) {
     return;
   }
 
-  /* DEFAULT MAP VIEWS */
+  /* DEFAULT MAPS */
   const src = MAPS[name];
 
   c.innerHTML = `
@@ -86,31 +79,16 @@ function page(name) {
   `;
 }
 
-/* ---------------------------
-   NAV BUTTONS
-----------------------------*/
+/* NAV */
 document.querySelectorAll('[data-page]').forEach(btn => {
   btn.onclick = () => page(btn.dataset.page);
 });
 
-/* CLOCK LIVE UPDATE */
+/* CLOCK */
 setInterval(() => {
   const el = document.getElementById('clock');
   if (el) el.textContent = formatTime();
 }, 1000);
 
+/* START */
 page('overview');
-import { loadConditions, loadForecast } from './weather.js';
-import { loadAirQuality } from './airquality.js';
-import { loadAlerts } from './alerts.js';
-import { loadTicker } from './ticker.js';
-if (name === 'overview') {
-
-  c.innerHTML = `...existing layout...`;
-
-  loadConditions();
-  loadForecast();
-  loadAirQuality();
-  loadAlerts();
-  loadTicker();
-}
