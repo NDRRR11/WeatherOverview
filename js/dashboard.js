@@ -185,7 +185,10 @@ function page(name) {
           <div class="card" id="conditions">Loading...</div>
           <div class="card" id="forecast">Loading...</div>
           <div class="card" id="air">Loading...</div>
-          <div class="card" id="alerts">Loading...</div>
+          <div class="card">
+              <h3>North Dakota Alerts</h3>
+              <div id="alerts-content">Loading...</div>
+         </div>
           <div class="card" id="ticker">Loading...</div>
 
         </div>
