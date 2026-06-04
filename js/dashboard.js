@@ -1,3 +1,4 @@
+console.log("dashboard.js loaded");
 import { MAPS } from '../config/maps.js';
 import { alertsHtml } from './alerts.js';
 
