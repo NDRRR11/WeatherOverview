@@ -102,3 +102,15 @@ import { loadConditions, loadForecast } from './weather.js';
 import { loadAirQuality } from './airquality.js';
 import { loadAlerts } from './alerts.js';
 import { loadTicker } from './ticker.js';
+if (name === 'overview') {
+
+  c.innerHTML = `...existing layout...`;
+
+  loadConditions();
+  loadForecast();
+  loadAirQuality();
+  loadAlerts();
+  loadTicker();
+
+  return;
+}
