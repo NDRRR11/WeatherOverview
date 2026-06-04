@@ -93,43 +93,63 @@ function page(name) {
   console.log("page:", name);
 
   /* OVERVIEW */
-  if (name === 'overview') {
-    c.innerHTML = `
-      <div class="overview">
+if (name === 'overview') {
 
-        <div class="leftRadar">
-          <iframe src="${MAPS.local}"></iframe>
+  c.innerHTML = `
+    <div class="overview">
+
+      <!-- LEFT: RADAR -->
+      <div class="leftRadar">
+        <iframe src="${MAPS.local}"></iframe>
+      </div>
+
+      <!-- RIGHT: OPS PANEL -->
+      <div class="rightPanel">
+
+        <!-- CLOCK -->
+        <div class="clock" id="clock">
+          ${formatTime()}
         </div>
 
-        <div class="rightPanel">
+        <!-- CURRENT CONDITIONS -->
+        <div class="card" id="conditions">
+          <h3>Current Conditions (KBIS)</h3>
+          Loading live data...
+        </div>
 
-          <div class="clock" id="clock">
-            ${formatTime()}
-          </div>
+        <!-- FORECAST -->
+        <div class="card" id="forecast">
+          <h3>Forecast</h3>
+          Loading live data...
+        </div>
 
-          <div class="card" id="conditions">Loading...</div>
-          <div class="card" id="forecast">Loading...</div>
-          <div class="card" id="air">Loading...</div>
-          <div class="card" id="alerts">Loading...</div>
-          <div class="card" id="ticker">Loading...</div>
+        <!-- AIR QUALITY -->
+        <div class="card" id="air">
+          <h3>Air Quality</h3>
+          Loading live data...
+        </div>
 
+        <!-- STATEWIDE ALERTS -->
+        <div class="card" id="alerts">
+          <h3>North Dakota Alerts</h3>
+          Loading live data...
+        </div>
+
+        <!-- NATIONAL TICKER -->
+        <div class="card" id="ticker">
+          <h3>National Weather Highlights</h3>
+          Loading live data...
         </div>
 
       </div>
-    `;
+    </div>
+  `;
 
-    // hydrate live data AFTER DOM exists
-    setTimeout(() => {
-      loadConditions();
-      loadForecast();
-      loadAirQuality();
-      loadAlerts();
-      loadTicker();
-    }, 50);
+  // 🧠 START FULL LIVE ENGINE (single source of truth)
+  startDashboardEngine();
 
-    return;
-  }
-
+  return;
+}
   /* SETTINGS */
   if (name === 'settings') {
     renderSettings();
@@ -162,11 +182,6 @@ document.querySelectorAll('[data-page]').forEach(btn => {
 /* ---------------------------
    CLOCK UPDATE
 ----------------------------*/
-setInterval(() => {
-  const el = document.getElementById('clock');
-  if (el) el.textContent = formatTime();
-}, 1000);
-
 /* ---------------------------
    GLOBAL DEBUG ACCESS
    (fixes "page is not defined")
@@ -176,4 +191,47 @@ window.page = page;
 /* ---------------------------
    INITIAL LOAD
 ----------------------------*/
-page('overview');
+/* ---------------------------
+   LIVE DASHBOARD ENGINE
+----------------------------*/
+
+let refreshTimer = null;
+let clockTimer = null;
+
+function refreshAll() {
+  loadConditions();
+  loadForecast();
+  loadAirQuality();
+  loadAlerts();
+  loadTicker();
+}
+
+function startDashboardEngine() {
+
+  // avoid duplicate loops
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (clockTimer) clearInterval(clockTimer);
+
+  // CLOCK (1 second heartbeat)
+  clockTimer = setInterval(() => {
+    const el = document.getElementById('clock');
+    if (el) el.textContent = formatTime();
+  }, 1000);
+
+  // DATA (60 second heartbeat)
+  refreshTimer = setInterval(() => {
+    refreshAll();
+  }, 60000);
+
+  // initial load immediately
+  refreshAll();
+}
+   
+   page('overview');
+
+setInterval(() => {
+  const el = document.getElementById("alerts");
+  if (el) {
+    loadAlerts();
+  }
+}, 60000);
