@@ -2,6 +2,7 @@ console.log("dashboard.js loaded");
 
 import { MAPS } from '../config/maps.js';
 import { alertsHtml } from './alerts.js';
+
 import { loadConditions, loadForecast } from './weather.js';
 import { loadAirQuality } from './airquality.js';
 import { loadAlerts } from './alerts.js';
@@ -9,6 +10,9 @@ import { loadTicker } from './ticker.js';
 
 const c = document.getElementById('content');
 
+/* ---------------------------
+   TIME FORMATTER
+----------------------------*/
 function formatTime() {
   return new Date().toLocaleString('en-US', {
     weekday: 'long',
@@ -21,7 +25,7 @@ function formatTime() {
 }
 
 /* ---------------------------
-   MAIN ROUTER
+   PAGE ROUTER
 ----------------------------*/
 function page(name) {
 
@@ -33,16 +37,20 @@ function page(name) {
     c.innerHTML = `
       <div class="overview">
 
+        <!-- LEFT: RADAR -->
         <div class="leftRadar">
           <iframe src="${MAPS.local}"></iframe>
         </div>
 
+        <!-- RIGHT: OPS PANEL -->
         <div class="rightPanel">
 
+          <!-- CLOCK -->
           <div class="clock" id="clock">
             ${formatTime()}
           </div>
 
+          <!-- DATA PANELS -->
           <div class="card" id="conditions">Loading...</div>
           <div class="card" id="forecast">Loading...</div>
           <div class="card" id="air">Loading...</div>
@@ -50,10 +58,11 @@ function page(name) {
           <div class="card" id="ticker">Loading...</div>
 
         </div>
+
       </div>
     `;
 
-    // 🔥 NOW WE ACTUALLY ACTIVATE THE DATA LAYER
+    /* 🔥 LIVE DATA LAYER */
     loadConditions();
     loadForecast();
     loadAirQuality();
@@ -63,13 +72,13 @@ function page(name) {
     return;
   }
 
-  /* ALERTS TAB */
+  /* ALERTS PAGE */
   if (name === 'alerts') {
     c.innerHTML = alertsHtml();
     return;
   }
 
-  /* DEFAULT MAPS */
+  /* DEFAULT: MAP VIEWS */
   const src = MAPS[name];
 
   c.innerHTML = `
@@ -79,16 +88,22 @@ function page(name) {
   `;
 }
 
-/* NAV */
+/* ---------------------------
+   NAVIGATION BUTTONS
+----------------------------*/
 document.querySelectorAll('[data-page]').forEach(btn => {
   btn.onclick = () => page(btn.dataset.page);
 });
 
-/* CLOCK */
+/* ---------------------------
+   LIVE CLOCK UPDATE
+----------------------------*/
 setInterval(() => {
   const el = document.getElementById('clock');
   if (el) el.textContent = formatTime();
 }, 1000);
 
-/* START */
+/* ---------------------------
+   INITIAL LOAD
+----------------------------*/
 page('overview');
