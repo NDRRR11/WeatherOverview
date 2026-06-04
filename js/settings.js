@@ -46,5 +46,4 @@ if(name==='settings'){
             </p>
         </div>
     `;
-    return;
 }
