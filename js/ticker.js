@@ -1,4 +1,5 @@
-export async function loadTicker() {
+export function loadTicker() {
+
   const items = [
     "SPC outlook: monitoring severe weather potential across Plains...",
     "NHC: no active tropical cyclones in Atlantic basin...",
@@ -9,13 +10,22 @@ export async function loadTicker() {
   let i = 0;
 
   function rotate() {
-    document.getElementById("ticker").innerHTML = `
+    const el = document.getElementById("ticker");
+
+    // 🛡️ SAFE GUARD (prevents crash)
+    if (!el) return;
+
+    el.innerHTML = `
       <h3>National Weather Highlights</h3>
       <div>${items[i]}</div>
     `;
+
     i = (i + 1) % items.length;
   }
 
-  rotate();
-  setInterval(rotate, 6000);
+  // wait until DOM is ready-ish
+  setTimeout(() => {
+    rotate();
+    setInterval(rotate, 6000);
+  }, 200);
 }
