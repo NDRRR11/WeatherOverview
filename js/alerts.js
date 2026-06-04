@@ -1,14 +1,14 @@
 export function alertsHtml() {
   return `
-    <div class="panel" id="alerts">
+    <div class="panel">
       <h2>North Dakota Alerts</h2>
-      <div>Loading live alerts...</div>
+      <div id="alerts-content">Loading live alerts...</div>
     </div>
   `;
 }
 
 export async function loadAlerts() {
-  const el = document.getElementById("alerts");
+  const el = document.getElementById("alerts-content");
   if (!el) return;
 
   try {
