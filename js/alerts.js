@@ -1,8 +1,13 @@
 
 export function alertsHtml(){
-return '<div class="panel"><h2>ND Alerts</h2><p>Future NWS feed integration.</p></div>';
+  return `
+    <div class="panel" id="alerts">
+      <h2>North Dakota Alerts</h2>
+      <div>Loading live alerts...</div>
+    </div>
+  `;
 }
-export async function loadAlerts() {
+eexport async function loadAlerts() {
   const el = document.getElementById("alerts");
   if (!el) return;
 
@@ -12,26 +17,30 @@ export async function loadAlerts() {
     );
 
     const data = await res.json();
-
     const features = data.features || [];
 
-    if (!features.length) {
-      el.innerHTML = `
-        <h3>North Dakota Alerts</h3>
-        <div>No active statewide alerts</div>
-      `;
-      return;
-    }
+    const warnings = features.filter(f =>
+      (f.properties?.event || "").includes("Warning")
+    );
+
+    const watches = features.filter(f =>
+      (f.properties?.event || "").includes("Watch")
+    );
+
+    const advisories = features.filter(f =>
+      (f.properties?.event || "").includes("Advisory")
+    );
 
     el.innerHTML = `
       <h3>North Dakota Alerts</h3>
-      <div>Warnings: ${features.filter(f => f.properties.event.includes("Warning")).length}</div>
-      <div>Watches: ${features.filter(f => f.properties.event.includes("Watch")).length}</div>
-      <div>Advisories: ${features.filter(f => f.properties.event.includes("Advisory")).length}</div>
 
-      <div style="margin-top:8px">
-        ${features.slice(0, 5).map(f => `
-          <div>• ${f.properties.event}</div>
+      <div><strong>Warnings:</strong> ${warnings.length}</div>
+      <div><strong>Watches:</strong> ${watches.length}</div>
+      <div><strong>Advisories:</strong> ${advisories.length}</div>
+
+      <div style="margin-top:10px">
+        ${features.slice(0, 6).map(f => `
+          <div>• ${f.properties?.event || "Unknown Event"}</div>
         `).join("")}
       </div>
     `;
@@ -39,7 +48,7 @@ export async function loadAlerts() {
   } catch (e) {
     el.innerHTML = `
       <h3>North Dakota Alerts</h3>
-      <div>Alerts unavailable</div>
+      <div>⚠ Alerts feed unavailable</div>
     `;
   }
 }
