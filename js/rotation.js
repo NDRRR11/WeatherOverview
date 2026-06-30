@@ -1,138 +1,111 @@
-let rotationTimer;
-
+let rotationTimer = null;
 let rotationIndex = 0;
 
+/* -----------------------------
+   SAVE SETTINGS
+------------------------------*/
+function saveRotationSettings() {
+    const enabledTabs = [...document.querySelectorAll(".rotationTab:checked")]
+        .map(t => t.value);
 
-function saveRotationSettings(){
+    const intervalEl = document.getElementById("rotationInterval");
+    const toggleEl = document.getElementById("rotateToggle");
 
-    const enabledTabs =
-        [...document.querySelectorAll(".rotationTab:checked")]
-        .map(tab => tab.value);
-
-
-    localStorage.setItem(
-        "rotationTabs",
-        JSON.stringify(enabledTabs)
-    );
-
-
-    localStorage.setItem(
-        "rotationInterval",
-        document.getElementById("rotationInterval").value
-    );
-
-
-    localStorage.setItem(
-        "rotationEnabled",
-        document.getElementById("rotateToggle").checked
-    );
+    localStorage.setItem("rotationTabs", JSON.stringify(enabledTabs));
+    localStorage.setItem("rotationInterval", intervalEl ? intervalEl.value : "60");
+    localStorage.setItem("rotationEnabled", toggleEl ? toggleEl.checked : "false");
 }
 
+/* -----------------------------
+   LOAD SETTINGS INTO UI
+------------------------------*/
+function loadRotationSettings() {
+    const savedTabs = JSON.parse(localStorage.getItem("rotationTabs") || "[]");
+    const interval = localStorage.getItem("rotationInterval");
+    const enabled = localStorage.getItem("rotationEnabled");
 
+    document.querySelectorAll(".rotationTab").forEach(tab => {
+        tab.checked = savedTabs.length ? savedTabs.includes(tab.value) : true;
+    });
 
-function loadRotationSettings(){
-
-    const savedTabs =
-        JSON.parse(
-            localStorage.getItem("rotationTabs")
-        );
-
-
-    if(savedTabs){
-
-        document
-        .querySelectorAll(".rotationTab")
-        .forEach(tab=>{
-
-            tab.checked =
-            savedTabs.includes(tab.value);
-
-        });
-
+    const intervalEl = document.getElementById("rotationInterval");
+    if (intervalEl && interval) {
+        intervalEl.value = interval;
     }
 
-
-    const interval =
-    localStorage.getItem("rotationInterval");
-
-
-    if(interval){
-
-        document.getElementById("rotationInterval")
-        .value = interval;
-
+    const toggleEl = document.getElementById("rotateToggle");
+    if (toggleEl && enabled !== null) {
+        toggleEl.checked = enabled === "true";
     }
-
-
-    const enabled =
-    localStorage.getItem("rotationEnabled");
-
-
-    if(enabled !== null){
-
-        document.getElementById("rotateToggle")
-        .checked =
-        enabled === "true";
-
-    }
-
 }
 
-
-
-function getRotationTabs(){
-
+/* -----------------------------
+   GET ACTIVE TABS
+------------------------------*/
+function getRotationTabs() {
     return [...document.querySelectorAll(".rotationTab:checked")]
-    .map(tab => tab.value);
-
+        .map(t => t.value);
 }
 
+/* -----------------------------
+   START ROTATION
+------------------------------*/
+export function startRotation() {
+    try {
+        stopRotation();
 
+        const enabled = localStorage.getItem("rotationEnabled");
+        if (enabled === "false") return;
 
-export function startRotation(){
+        const tabs = getRotationTabs();
+        if (!tabs || tabs.length < 2) return;
 
-    saveRotationSettings();
+        const intervalEl = document.getElementById("rotationInterval");
+        const interval = Number(intervalEl?.value || 60) * 1000;
 
-    stopRotation();
+        rotationTimer = setInterval(() => {
+            const activeTabs = getRotationTabs();
+            if (!activeTabs.length) return;
 
+            rotationIndex = (rotationIndex + 1) % activeTabs.length;
 
-    const tabs = getRotationTabs();
+            if (typeof window.page === "function") {
+                window.page(activeTabs[rotationIndex]);
+            } else {
+                console.warn("page() function not found");
+            }
 
+        }, interval);
 
-    if(tabs.length < 2){
-        return;
+    } catch (err) {
+        console.error("Rotation start failed:", err);
     }
-
-
-    const interval =
-    Number(
-        document.getElementById("rotationInterval").value
-    ) * 1000;
-
-
-    rotationTimer =
-    setInterval(()=>{
-
-        const activeTabs = getRotationTabs();
-
-        rotationIndex =
-        (rotationIndex + 1)
-        % activeTabs.length;
-
-
-        page(activeTabs[rotationIndex]);
-
-
-    }, interval);
-
 }
 
-
-
-export function stopRotation(){
-
-    if(rotationTimer){
+/* -----------------------------
+   STOP ROTATION
+------------------------------*/
+export function stopRotation() {
+    if (rotationTimer) {
         clearInterval(rotationTimer);
+        rotationTimer = null;
     }
+}
 
+/* -----------------------------
+   INIT SETTINGS (CALL ON LOAD)
+------------------------------*/
+export function initRotationSettings() {
+    loadRotationSettings();
+
+    // attach listeners safely
+    document.querySelectorAll(".rotationTab").forEach(el => {
+        el.addEventListener("change", saveRotationSettings);
+    });
+
+    const intervalEl = document.getElementById("rotationInterval");
+    const toggleEl = document.getElementById("rotateToggle");
+
+    if (intervalEl) intervalEl.addEventListener("change", saveRotationSettings);
+    if (toggleEl) toggleEl.addEventListener("change", saveRotationSettings);
 }
