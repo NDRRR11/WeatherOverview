@@ -236,3 +236,36 @@ loadAlertTicker();
 
 setInterval(loadAlertTicker, 300000);
 startRotationEngine();
+
+<h3>Rotation Tabs</h3>
+
+<label>
+<input type="checkbox" class="rotationTab" value="overview" checked>
+Overview
+</label>
+
+<label>
+<input type="checkbox" class="rotationTab" value="local" checked>
+Local Radar
+</label>
+
+<label>
+<input type="checkbox" class="rotationTab" value="national" checked>
+National Radar
+</label>
+
+<label>
+<input type="checkbox" class="rotationTab" value="air" checked>
+Air Quality
+</label>
+
+<label>
+<input type="checkbox" class="rotationTab" value="river" checked>
+River Conditions
+</label>
+
+<label>
+<input type="checkbox" class="rotationTab" value="alerts" checked>
+ND Alerts
+</label>
+Add the Rotation Logic
