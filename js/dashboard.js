@@ -1,20 +1,23 @@
 console.log("dashboard.js loaded");
 
-import {loadAlertTicker} from './alertsTicker.js';
+/* ---------------------------
+   IMPORTS
+----------------------------*/
+import { loadAlertTicker } from './alertsTicker.js';
 import { MAPS } from '../config/maps.js';
-import { loadAlerts } from './alerts.js';
 
+import { loadAlerts } from './alerts.js';
 import { loadConditions, loadForecast } from './weather.js';
 import { loadAirQuality } from './airquality.js';
 import { loadTicker } from './ticker.js';
 
 /* ---------------------------
-   DOM ROOT
+   ROOT ELEMENT
 ----------------------------*/
 const c = document.getElementById('content');
 
 /* ---------------------------
-   CLOCK FORMAT
+   CLOCK
 ----------------------------*/
 function formatTime() {
   return new Date().toLocaleString('en-US', {
@@ -28,15 +31,35 @@ function formatTime() {
 }
 
 /* ---------------------------
-   SETTINGS STATE
+   SETTINGS STATE (SAFE DEFAULTS)
 ----------------------------*/
-export const settings = {
+const settings = {
   rotate: localStorage.getItem('rotate') !== 'false',
-  interval: +(localStorage.getItem('interval') || 60)
+  interval: parseInt(localStorage.getItem('interval') || '60', 10)
 };
 
 /* ---------------------------
-   SETTINGS RENDER
+   TIMERS
+----------------------------*/
+let refreshTimer = null;
+let clockTimer = null;
+let rotationTimer = null;
+let rotationIndex = 0;
+
+/* ---------------------------
+   ROTATION PAGES (DEFAULT SET)
+----------------------------*/
+const rotationPages = [
+  "overview",
+  "local",
+  "national",
+  "air",
+  "river",
+  "alerts"
+];
+
+/* ---------------------------
+   SETTINGS UI
 ----------------------------*/
 function renderSettings() {
   c.innerHTML = `
@@ -75,6 +98,15 @@ function renderSettings() {
         <option value="river">River Conditions</option>
         <option value="alerts">ND Alerts</option>
       </select>
+
+      <h3>Rotation Tabs</h3>
+
+      <label><input type="checkbox" class="rotationTab" value="overview" checked> Overview</label><br>
+      <label><input type="checkbox" class="rotationTab" value="local" checked> Local Radar</label><br>
+      <label><input type="checkbox" class="rotationTab" value="national" checked> National Radar</label><br>
+      <label><input type="checkbox" class="rotationTab" value="air" checked> Air Quality</label><br>
+      <label><input type="checkbox" class="rotationTab" value="river" checked> River Conditions</label><br>
+      <label><input type="checkbox" class="rotationTab" value="alerts" checked> ND Alerts</label>
     </div>
   `;
 
@@ -86,75 +118,63 @@ function renderSettings() {
 }
 
 /* ---------------------------
-   LIVE DASHBOARD ENGINE
+   DATA REFRESH ENGINE
 ----------------------------*/
-let refreshTimer = null;
-let clockTimer = null;
-
 function refreshAll() {
-  loadConditions();
-  loadForecast();
-  loadAirQuality();
-  loadAlerts();
-  loadTicker();
+  try {
+    loadConditions();
+    loadForecast();
+    loadAirQuality();
+    loadAlerts();
+    loadTicker();
+  } catch (e) {
+    console.error("refreshAll error:", e);
+  }
 }
 
 function startDashboardEngine() {
-
-  // prevent duplicate intervals
   if (refreshTimer) clearInterval(refreshTimer);
   if (clockTimer) clearInterval(clockTimer);
 
-  // CLOCK (1 sec)
   clockTimer = setInterval(() => {
     const el = document.getElementById("clock");
     if (el) el.textContent = formatTime();
   }, 1000);
 
-  // DATA (60 sec)
-  refreshTimer = setInterval(() => {
-    refreshAll();
-  }, 60000);
+  refreshTimer = setInterval(refreshAll, 60000);
 
-  // initial load
   refreshAll();
 }
 
-let rotationTimer = null;
-let rotationIndex = 0;
-
-const rotationPages = [
-  "overview",
-  "local",
-  "national",
-  "air",
-  "river"
-];
+/* ---------------------------
+   ROTATION ENGINE (SAFE)
+----------------------------*/
+function getEnabledRotationPages() {
+  const checkboxes = document.querySelectorAll(".rotationTab:checked");
+  return [...checkboxes].map(c => c.value);
+}
 
 function startRotationEngine() {
-
-  // prevent duplicates
   if (rotationTimer) clearInterval(rotationTimer);
 
-  // check if enabled
-  const enabled = localStorage.getItem("rotate") !== "false";
-  if (!enabled) return;
+  const enabled = localStorage.getItem("rotate");
+  if (enabled === "false") return;
 
   const interval =
-    (parseInt(localStorage.getItem("interval")) || 60) * 1000;
+    (parseInt(localStorage.getItem("interval") || "60", 10)) * 1000;
 
   rotationTimer = setInterval(() => {
 
-    rotationIndex++;
+    const pages = getEnabledRotationPages();
 
-    if (rotationIndex >= rotationPages.length) {
-      rotationIndex = 0;
-    }
+    if (!pages.length) return;
 
-    const pageName = rotationPages[rotationIndex];
+    rotationIndex = (rotationIndex + 1) % pages.length;
+
+    const next = pages[rotationIndex];
 
     if (typeof window.page === "function") {
-      window.page(pageName);
+      window.page(next);
     }
 
   }, interval);
@@ -185,10 +205,12 @@ function page(name) {
           <div class="card" id="conditions">Loading...</div>
           <div class="card" id="forecast">Loading...</div>
           <div class="card" id="air">Loading...</div>
+
           <div class="card">
-              <h3>North Dakota Alerts</h3>
-              <div id="alerts-content">Loading...</div>
-         </div>
+            <h3>North Dakota Alerts</h3>
+            <div id="alerts-content">Loading...</div>
+          </div>
+
           <div class="card" id="ticker">Loading...</div>
 
         </div>
@@ -206,7 +228,7 @@ function page(name) {
     return;
   }
 
-  /* DEFAULT MAP VIEW */
+  /* DEFAULT MAP */
   const src = MAPS[name];
 
   c.innerHTML = `
@@ -224,48 +246,16 @@ document.querySelectorAll('[data-page]').forEach(btn => {
 });
 
 /* ---------------------------
-   GLOBAL ACCESS FIX
+   GLOBAL ACCESS
 ----------------------------*/
 window.page = page;
 
 /* ---------------------------
-   INITIAL LOAD
+   INIT
 ----------------------------*/
 page('overview');
+
 loadAlertTicker();
-
 setInterval(loadAlertTicker, 300000);
+
 startRotationEngine();
-
-<h3>Rotation Tabs</h3>
-
-<label>
-<input type="checkbox" class="rotationTab" value="overview" checked>
-Overview
-</label>
-
-<label>
-<input type="checkbox" class="rotationTab" value="local" checked>
-Local Radar
-</label>
-
-<label>
-<input type="checkbox" class="rotationTab" value="national" checked>
-National Radar
-</label>
-
-<label>
-<input type="checkbox" class="rotationTab" value="air" checked>
-Air Quality
-</label>
-
-<label>
-<input type="checkbox" class="rotationTab" value="river" checked>
-River Conditions
-</label>
-
-<label>
-<input type="checkbox" class="rotationTab" value="alerts" checked>
-ND Alerts
-</label>
-Add the Rotation Logic
