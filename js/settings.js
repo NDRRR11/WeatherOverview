@@ -47,3 +47,32 @@ if(name==='settings'){
         </div>
     `;
 }
+document
+.querySelectorAll(".rotationTab")
+.forEach(box=>{
+
+    box.addEventListener(
+        "change",
+        saveRotationSettings
+    );
+
+});
+
+
+document
+.getElementById("rotationInterval")
+.addEventListener(
+    "change",
+    saveRotationSettings
+);
+
+
+document
+.getElementById("rotateToggle")
+.addEventListener(
+    "change",
+    saveRotationSettings
+);
+
+
+loadRotationSettings();
