@@ -1,5 +1,6 @@
 console.log("dashboard.js loaded");
 
+import {loadAlertTicker} from './alertsTicker.js';
 import { MAPS } from '../config/maps.js';
 import { loadAlerts } from './alerts.js';
 
@@ -231,4 +232,7 @@ window.page = page;
    INITIAL LOAD
 ----------------------------*/
 page('overview');
+loadAlertTicker();
+
+setInterval(loadAlertTicker, 300000);
 startRotationEngine();
