@@ -1,3 +1,21 @@
+function setBool(key, value){
+  localStorage.setItem(key, value ? "true" : "false");
+}
+
+function getBool(key, fallback=true){
+  const v = localStorage.getItem(key);
+  if(v === null) return fallback;
+  return v === "true";
+}
+
+function setNumber(key, value){
+  localStorage.setItem(key, String(value));
+}
+
+function getNumber(key, fallback=60){
+  const v = localStorage.getItem(key);
+  return v ? Number(v) : fallback;
+}
 console.log("dashboard.js loaded");
 
 import { loadAlertTicker } from './alertsTicker.js';
