@@ -1,28 +1,105 @@
-
-export function startRotation(){ console.log('rotation placeholder'); }
-
 let rotationTimer;
 
 let rotationIndex = 0;
 
 
-function getRotationTabs(){
+function saveRotationSettings(){
 
-    return [...document.querySelectorAll(".rotationTab:checked")]
+    const enabledTabs =
+        [...document.querySelectorAll(".rotationTab:checked")]
         .map(tab => tab.value);
+
+
+    localStorage.setItem(
+        "rotationTabs",
+        JSON.stringify(enabledTabs)
+    );
+
+
+    localStorage.setItem(
+        "rotationInterval",
+        document.getElementById("rotationInterval").value
+    );
+
+
+    localStorage.setItem(
+        "rotationEnabled",
+        document.getElementById("rotateToggle").checked
+    );
+}
+
+
+
+function loadRotationSettings(){
+
+    const savedTabs =
+        JSON.parse(
+            localStorage.getItem("rotationTabs")
+        );
+
+
+    if(savedTabs){
+
+        document
+        .querySelectorAll(".rotationTab")
+        .forEach(tab=>{
+
+            tab.checked =
+            savedTabs.includes(tab.value);
+
+        });
+
+    }
+
+
+    const interval =
+    localStorage.getItem("rotationInterval");
+
+
+    if(interval){
+
+        document.getElementById("rotationInterval")
+        .value = interval;
+
+    }
+
+
+    const enabled =
+    localStorage.getItem("rotationEnabled");
+
+
+    if(enabled !== null){
+
+        document.getElementById("rotateToggle")
+        .checked =
+        enabled === "true";
+
+    }
 
 }
 
 
+
+function getRotationTabs(){
+
+    return [...document.querySelectorAll(".rotationTab:checked")]
+    .map(tab => tab.value);
+
+}
+
+
+
 export function startRotation(){
+
+    saveRotationSettings();
 
     stopRotation();
 
 
-    const enabledTabs = getRotationTabs();
+    const tabs = getRotationTabs();
 
 
-    if(enabledTabs.length < 2){
+    if(tabs.length < 2){
         return;
     }
 
@@ -36,13 +113,14 @@ export function startRotation(){
     rotationTimer =
     setInterval(()=>{
 
-        const tabs = getRotationTabs();
+        const activeTabs = getRotationTabs();
 
         rotationIndex =
-        (rotationIndex + 1) % tabs.length;
+        (rotationIndex + 1)
+        % activeTabs.length;
 
 
-        page(tabs[rotationIndex]);
+        page(activeTabs[rotationIndex]);
 
 
     }, interval);
