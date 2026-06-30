@@ -1,10 +1,14 @@
-
-export const settings={
-rotate:localStorage.getItem('rotate')!=='false',
-interval:+(localStorage.getItem('interval')||60)
+export const settings = {
+    rotate: localStorage.getItem('rotate') !== 'false',
+    interval: +(localStorage.getItem('interval') || 60)
 };
-if(name==='settings'){
-    c.innerHTML=`
+
+/* ---------------------------
+   SETTINGS PAGE RENDER
+----------------------------*/
+export function renderSettings(c) {
+
+    c.innerHTML = `
         <div class="panel">
             <h2>Dashboard Settings</h2>
 
@@ -17,7 +21,7 @@ if(name==='settings'){
             <h3>Rotation Interval</h3>
             <select id="rotationInterval">
                 <option value="30">30 Seconds</option>
-                <option value="60" selected>60 Seconds</option>
+                <option value="60">60 Seconds</option>
                 <option value="120">120 Seconds</option>
                 <option value="300">300 Seconds</option>
             </select>
@@ -41,38 +45,48 @@ if(name==='settings'){
                 <option value="alerts">ND Alerts</option>
             </select>
 
-            <p>
-                Settings persistence will be enabled in the next version.
-            </p>
+            <h3>Rotation Tabs</h3>
+
+            <label><input type="checkbox" class="rotationTab" value="overview"> Overview</label><br>
+            <label><input type="checkbox" class="rotationTab" value="local"> Local Radar</label><br>
+            <label><input type="checkbox" class="rotationTab" value="national"> National Radar</label><br>
+            <label><input type="checkbox" class="rotationTab" value="air"> Air Quality</label><br>
+            <label><input type="checkbox" class="rotationTab" value="river"> River Conditions</label><br>
+            <label><input type="checkbox" class="rotationTab" value="alerts"> ND Alerts</label>
         </div>
     `;
+
+    // restore values AFTER DOM exists
+    const rotateToggle = document.getElementById("rotateToggle");
+    const intervalSelect = document.getElementById("rotationInterval");
+
+    if (rotateToggle) rotateToggle.checked = settings.rotate;
+    if (intervalSelect) intervalSelect.value = settings.interval;
+
+    attachSettingsListeners();
 }
-document
-.querySelectorAll(".rotationTab")
-.forEach(box=>{
 
-    box.addEventListener(
-        "change",
-        saveRotationSettings
-    );
+/* ---------------------------
+   SAFE EVENT BINDING (CRITICAL FIX)
+----------------------------*/
+function attachSettingsListeners() {
 
-});
+    const tabs = document.querySelectorAll(".rotationTab");
 
+    tabs.forEach(box => {
+        box.addEventListener("change", saveRotationSettings);
+    });
 
-document
-.getElementById("rotationInterval")
-.addEventListener(
-    "change",
-    saveRotationSettings
-);
+    const interval = document.getElementById("rotationInterval");
+    const toggle = document.getElementById("rotateToggle");
 
+    if (interval) {
+        interval.addEventListener("change", saveRotationSettings);
+    }
 
-document
-.getElementById("rotateToggle")
-.addEventListener(
-    "change",
-    saveRotationSettings
-);
+    if (toggle) {
+        toggle.addEventListener("change", saveRotationSettings);
+    }
 
-
-loadRotationSettings();
+    loadRotationSettings();
+}
