@@ -88,7 +88,7 @@ button {
 
 .overview {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 60% 40%;
   height: 100%;
 }
 
@@ -167,7 +167,7 @@ button {
 #alertTickerText {
     display: inline-block;
     padding-left: 100%;
-    animation: alertScroll 25s linear infinite;
+    animation: alertScroll 35s linear infinite;
 }
 
 @keyframes alertScroll {
