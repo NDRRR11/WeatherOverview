@@ -90,3 +90,21 @@ function attachSettingsListeners() {
 
     loadRotationSettings();
 }
+export function saveRotationSettings() {
+
+    const rotateToggle = document.getElementById("rotateToggle");
+    const intervalSelect = document.getElementById("rotationInterval");
+
+    const enabledTabs = [...document.querySelectorAll(".rotationTab:checked")]
+        .map(t => t.value);
+
+    if (rotateToggle) {
+        localStorage.setItem("rotate", rotateToggle.checked);
+    }
+
+    if (intervalSelect) {
+        localStorage.setItem("interval", intervalSelect.value);
+    }
+
+    localStorage.setItem("rotationTabs", JSON.stringify(enabledTabs));
+}
